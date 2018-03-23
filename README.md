@@ -6,6 +6,8 @@ It serializes the hash (title, text and domain) in a Mongo database (using Seria
 
 It is useful when you crawl urls (using Selenium) and you want to know if a html page is the same as others in the same web site (sometimes you get "refuse" page but you don't know it) so you can control the crawling process.
 
+The cache is limited so the database will growth with a limit, only old items are removed (in term of get and write).
+
 The structure of the SerializableDict is:
 
 	{
@@ -23,6 +25,7 @@ The structure of the SerializableDict is:
 
 Call the init:
 
+	from domainduplicate.domainduplicate import *
 	dd = DomainDuplicate\
 	(
 		user=None, password=None, host="localhost", # mongo auth
