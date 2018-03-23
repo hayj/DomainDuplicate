@@ -1,6 +1,6 @@
 # DomainDuplicate
 
-This tools detect duplicates over web pages of a domain to control crawling process.
+This tool detect duplicates over web pages of a domain to control crawling process.
 
 It serializes the hash (title, text and domain) in a Mongo database (using SerializableDict from DataStructureTools) and store, for each hash, the url. So you can have different urls for on the same domain and the method isDuplicate answer True if the current title, text, domain are duplicates according to a threshold.
 
