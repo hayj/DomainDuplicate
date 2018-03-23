@@ -2,7 +2,7 @@
 
 This tools detect duplicates over web pages of a domain to control crawling process.
 
-It serialize the hash (title, text and domain) in a Mongo database (using SerializableDict from DataStructureTools) and store, for each hash, the url. So you can have different urls for on the same domain and the method isDuplicate answer True if the current title, text, domain are duplicates according to a threshold.
+It serializes the hash (title, text and domain) in a Mongo database (using SerializableDict from DataStructureTools) and store, for each hash, the url. So you can have different urls for on the same domain and the method isDuplicate answer True if the current title, text, domain are duplicates according to a threshold.
 
 It is useful when you crawl urls (using Selenium) and you want to know if a html page is the same as others in the same web site (sometimes you get "refuse" page but you don't know it) so you can control the crawling process.
 
