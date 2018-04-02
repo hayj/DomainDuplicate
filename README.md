@@ -18,7 +18,7 @@ The structure of the SerializableDict is:
 
 ## Install
 
-	git clone git@github.com:hayj/DomainDuplicate.git
+	git clone https://github.com/hayj/DomainDuplicate.git
 	pip install ./DomainDuplicate/wm-dist/*.tar.gz
 
 ## Usage

@@ -15,8 +15,8 @@ try:
     import selenium
     from selenium import webdriver
     import ipgetter
-    from webbrowser.utils import *
-    from webbrowser.utils import *
+    from hjwebbrowser.utils import *
+    from hjwebbrowser.utils import *
 except: pass
 from systemtools.duration import *
 from systemtools.file import *
