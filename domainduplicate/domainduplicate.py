@@ -3,7 +3,7 @@
 # db.getCollection('domainduplicate').find({$where: "this.value.length > 2"})
 
 from systemtools.basics import *
-from datatools.json import *
+from datatools.jsonreader import *
 from datatools.url import *
 from datastructuretools.setqueue import *
 from machinelearning.function import *
@@ -30,10 +30,17 @@ import math
 import numpy
 from queue import *
 import html2text
+from domainduplicate import config as ddConf
+from multiprocessing import Lock
 
-
-import hashlib
-
+domainDuplicateSingleton = None
+domainDuplicateSingletonLock = Lock()
+def getDomainDuplicateSingleton(*args, **kwargs):
+    global domainDuplicateSingleton
+    with domainDuplicateSingletonLock:
+        if domainDuplicateSingleton is None:
+            domainDuplicateSingleton = DomainDuplicate(*args, **kwargs)
+    return domainDuplicateSingleton
 
 class DomainDuplicate:
     """
@@ -46,19 +53,32 @@ class DomainDuplicate:
         user=None, password=None, host=None, # For the mongodb database
         logger=None,
         verbose=True,
+        useMongodb=None,
         maxDuplicates=10,
         name="domainduplicate",
         cleanEachNAction=10000,
+        doSerialize=True,
     ):
+        self.doSerialize = doSerialize
+        self.useMongodb = useMongodb
+        if self.useMongodb is None:
+            self.useMongodb = ddConf.useMongodb
         self.name = name
         self.maxDuplicates = maxDuplicates
         self.logger = logger
         self.verbose = verbose
-        if user is None and password is None and host is None:
-            try:
-                (user, password, host) = getOctodsMongoAuth()
-            except Exception as e:
-                logException(e, self, message="You must give user password and host for the mongo database.")
+        if user is None:
+            user = ddConf.user
+        if password is None:
+            password = ddConf.password
+        if host is None:
+            host = ddConf.host
+        if self.useMongodb:
+            if user is None and password is None and host is None:
+                try:
+                    (user, password, host) = getOctodsMongoAuth(logger=self.logger, verbose=self.verbose)
+                except Exception as e:
+                    logException(e, self, message="You must give user password and host for the mongo database.")
         self.data = SerializableDict\
         (
             name=self.name,
@@ -66,9 +86,10 @@ class DomainDuplicate:
             verbose=self.verbose,
             limit=limit,
             cacheCheckRatio=0.0,
-            useMongodb=True,
+            useMongodb=self.useMongodb,
             user=user, password=password, host=host,
             cleanEachNAction=cleanEachNAction,
+            doSerialize=self.doSerialize,
         )
         self.urlParser = URLParser()
 
@@ -85,15 +106,17 @@ class DomainDuplicate:
     def isDuplicate(self, url=None, title=None, html=None, addElement=True):
         """
             This function check if the given url, title, html is duplicates over previous title, html of the same domain.
-            It will add the current page to the database
+            It will add the current page to the database.
+            The number of duplicates is the number of occurence of the element -1. For example if there is 3 same elements in your database, there will be 2 duplicates. So you can set maxDuplicates to 0 to have only one element...
         """
         url = self.urlParser.normalize(url)
         theHash = self.hash(url, title, html)
         duplicateCount = 0
         if self.data.has(theHash):
-            duplicateCount = len(self.data[theHash])
+            allDuplicates = self.data[theHash]
+            duplicateCount = len(allDuplicates)
             if addElement:
-                self.data[theHash] = list(set(self.data[theHash] + [url]))
+                self.data[theHash] = list(set(allDuplicates + [url]))
         else:
             if addElement:
                 self.data[theHash] = [url]
@@ -249,7 +272,8 @@ class DomainDuplicate:
 #             return len(self.data[domain][hash][1])
 
 if __name__ == '__main__':
-    pass
+    print("")
+    fileToStr("")
 
 
 
